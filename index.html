@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>乾隆皇帝 AI 御前对话 | Qianlong Emperor Chatbot</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Floating golden particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Settings modal (hidden by default) -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-modal">
+      <h2>⚙️ 御用令牌 · API Key</h2>
+      <p>输入您的 DeepSeek API Key 以启用 AI 奏对。<br>（密钥仅保存在您的浏览器中）</p>
+      <input type="password" id="apiKeyInput" placeholder="sk-xxxxxxxxxxxxxxxx">
+      <div class="settings-actions">
+        <button id="saveApiKeyBtn">钦此 · 启用</button>
+        <button id="closeSettingsBtn">退下</button>
+      </div>
+      <p class="hint">若无令牌，仍可使用预设奏对。</p>
+    </div>
+  </div>
+
+  <!-- Main chat container -->
+  <div class="main-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="imperial-seal">✧ 大清 · 御笔钦赐 ✧</div>
+      <h1>乾 隆 皇 帝</h1>
+      <div class="subtitle">Emperor Qianlong · 清高宗 · 弘历</div>
+      <button class="settings-gear" id="openSettingsBtn" title="设置 API Key">⚙️</button>
+    </div>
+
+    <!-- Quick suggestions -->
+    <div class="quick-suggestions" id="quickSuggestions">
+      <span class="chip" data-msg="陛下，您最引以为傲的功绩是什么？">🏆 功绩</span>
+      <span class="chip" data-msg="听闻陛下诗作颇丰，可否赏赐一首？">📜 诗词</span>
+      <span class="chip" data-msg="陛下对西洋的奇技淫巧有何看法？">🌏 西洋</span>
+      <span class="chip" data-msg="陛下南巡时有何趣事？">🚢 南巡</span>
+      <span class="chip" data-msg="陛下如何治理这万里江山？">👑 治国</span>
+    </div>
+
+    <!-- Chat area -->
+    <div class="chat-area" id="chatArea">
+      <div class="message emperor">
+        <div class="avatar">🐉</div>
+        <div class="bubble">
+          <div class="sender-name">乾隆皇帝 · Emperor Qianlong</div>
+          <div>
+            朕乃大清皇帝，爱新觉罗·弘历，庙号高宗，年号乾隆。<br>
+            尔等有何事启奏？朕今日心情尚佳，可与你叙谈一二。<br>
+            朕统御天下六十载，文治武功，皆有所成。你有何疑问，尽管道来。
+          </div>
+          <div class="time-stamp">乾隆五十年 · 御书房</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="input-area">
+      <input type="text" id="userInput" placeholder="✧ 启奏陛下... ✧" autocomplete="off">
+      <button id="sendBtn">呈 奏</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
