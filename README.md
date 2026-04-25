@@ -1,30 +1,26 @@
 # 🐉 乾隆皇帝 AI 御前对话
 
-> 一个基于 DeepSeek API 的清朝乾隆皇帝 AI 聊天机器人，支持 Vercel 一键部署。
+> 大模型驱动的清朝乾隆皇帝聊天机器人，部署于 Vercel，使用 DeepSeek API。
 
-## ✨ 特色
+## 🚀 部署步骤
 
-- 真实乾隆口吻，半文半白
-- 可选接入 DeepSeek API（智能回复），无 API Key 时自动使用预设奏对
-- 黄金龙纹宫廷 UI
-- 快捷话题按钮
-- 移动端适配
+1. Fork 本仓库到你的 GitHub。
+2. 在 [Vercel](https://vercel.com) 中导入该仓库。
+3. **设置环境变量**：在 Vercel 项目 `Settings -> Environment Variables` 中添加：
+   - Key: `DEEPSEEK_API_KEY`
+   - Value: 你的 DeepSeek API 密钥（以 `sk-` 开头）
+4. 触发部署。访问网站即可直接与乾隆皇帝对话。
 
-## 🚀 部署到 Vercel
+## 🔐 安全性
 
-1. 将此仓库 Fork 到你的 GitHub。
-2. 前往 [vercel.com](https://vercel.com) 并导入该仓库。
-3. 无需环境变量，直接部署。
-4. 部署完成后，打开网站，点击右上角 ⚙️ 输入你的 [DeepSeek API Key](https://platform.deepseek.com/) 即可启用 AI 对话。
+- 所有 AI 调用通过 Vercel Serverless Function (`/api/chat`) 代理。
+- API 密钥仅存储在 Vercel 的环境变量中，**不会暴露给浏览器**。
+- 无需前端输入任何密钥。
 
-## 🔐 API Key 安全
+## 🏯 本地测试
 
-API Key 仅保存在你的浏览器 localStorage 中，不会上传至任何服务器。
-
-## 🏯 本地运行
-
-直接用浏览器打开 `index.html`，或使用 Live Server 等工具。
+使用 `vercel dev` 或直接打开 `index.html`（本地无 API 密钥时仅使用预设回复）。
 
 ---
 
-**大清万岁！** 🐉
+大清盛世，万国来朝！
