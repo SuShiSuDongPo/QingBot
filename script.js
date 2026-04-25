@@ -5,13 +5,6 @@ const sendBtn = document.getElementById('sendBtn');
 const quickSuggestions = document.getElementById('quickSuggestions');
 const particlesContainer = document.getElementById('particles');
 
-// Settings DOM
-const settingsOverlay = document.getElementById('settingsOverlay');
-const openSettingsBtn = document.getElementById('openSettingsBtn');
-const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-const apiKeyInput = document.getElementById('apiKeyInput');
-const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
-
 // ==================== PARTICLES ====================
 function createParticles() {
   for (let i = 0; i < 35; i++) {
@@ -27,42 +20,6 @@ function createParticles() {
   }
 }
 createParticles();
-
-// ==================== API SETTINGS ====================
-function getApiKey() {
-  return localStorage.getItem('deepseek_api_key') || '';
-}
-
-function setApiKey(key) {
-  localStorage.setItem('deepseek_api_key', key.trim());
-}
-
-// Settings modal logic
-openSettingsBtn.addEventListener('click', () => {
-  apiKeyInput.value = getApiKey();
-  settingsOverlay.classList.add('active');
-});
-
-closeSettingsBtn.addEventListener('click', () => {
-  settingsOverlay.classList.remove('active');
-});
-
-saveApiKeyBtn.addEventListener('click', () => {
-  const key = apiKeyInput.value.trim();
-  if (key) {
-    setApiKey(key);
-    alert('御用令牌已启用。现在朕将以真 AI 与你对话。');
-  } else {
-    localStorage.removeItem('deepseek_api_key');
-    alert('令牌已清除。将使用预设奏对。');
-  }
-  settingsOverlay.classList.remove('active');
-});
-
-// Close modal by clicking overlay background
-settingsOverlay.addEventListener('click', (e) => {
-  if (e.target === settingsOverlay) settingsOverlay.classList.remove('active');
-});
 
 // ==================== FALLBACK RESPONSES ====================
 const fallbackResponses = {
@@ -114,40 +71,24 @@ function getFallbackResponse(userMessage) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// ==================== DEEPSEEK API CALL ====================
+// ==================== DEEPSEEK API CALL (via Vercel serverless) ====================
 async function callDeepSeek(userMessage) {
-  const apiKey = getApiKey();
-  if (!apiKey) return null;
-
-  const systemPrompt = `你是大清乾隆皇帝，爱新觉罗·弘历，年号乾隆。你统治着盛世大清，自信、博学、威严但不失风趣。说话用半文半白的中文，自称“朕”，称呼对方为“卿”或“尔”。你喜爱诗词、收藏、南巡，对自己的十全武功和四库全书非常自豪。回答要符合乾隆的口吻，长度适中。`;
-
   try {
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    const response = await fetch('/api/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage }
-        ],
-        temperature: 0.8,
-        max_tokens: 300
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMessage })
     });
 
     if (!response.ok) {
-      console.error('DeepSeek API error:', response.status);
+      console.error('Serverless function returned', response.status);
       return null;
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    return data.reply || null;
   } catch (error) {
-    console.error('Network error calling DeepSeek:', error);
+    console.error('Failed to reach /api/chat:', error);
     return null;
   }
 }
@@ -159,7 +100,8 @@ function scrollToBottom() {
 
 function getTimeString() {
   const now = new Date();
-  const h = now.getHours(), m = String(now.getMinutes()).padStart(2, '0');
+  const h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2, '0');
   const shichen = ['子时','丑时','寅时','卯时','辰时','巳时','午时','未时','申时','酉时','戌时','亥时'][Math.floor((h+1)%24/2)];
   return `${shichen} · ${h}:${m}`;
 }
@@ -202,37 +144,27 @@ async function handleSend(messageText) {
   const trimmed = messageText.trim();
   if (!trimmed) return;
 
-  // Disable input
   userInput.disabled = true;
   sendBtn.disabled = true;
   userInput.value = '';
 
-  // Add user message
   chatArea.appendChild(createMessageElement('user', trimmed));
   scrollToBottom();
-
-  // Show typing
   addTypingIndicator();
 
-  let replyText = '';
+  // Try AI first
+  let replyText = await callDeepSeek(trimmed);
 
-  // Try DeepSeek first
-  const aiResponse = await callDeepSeek(trimmed);
-  if (aiResponse) {
-    replyText = aiResponse;
-  } else {
-    // Fallback
+  if (!replyText) {
+    // AI failed, wait a moment then use fallback
+    await new Promise(r => setTimeout(r, 800 + Math.random() * 700));
     replyText = getFallbackResponse(trimmed);
   }
-
-  // Simulate a short thinking delay if fallback (AI already has network delay)
-  if (!aiResponse) await new Promise(r => setTimeout(r, 800 + Math.random() * 700));
 
   removeTypingIndicator();
   chatArea.appendChild(createMessageElement('emperor', replyText));
   scrollToBottom();
 
-  // Re-enable
   userInput.disabled = false;
   sendBtn.disabled = false;
   userInput.focus();
@@ -254,5 +186,4 @@ quickSuggestions.addEventListener('click', (e) => {
   }
 });
 
-// Focus input
 userInput.focus();
